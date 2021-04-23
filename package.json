@@ -1,0 +1,39 @@
+{
+  "name": "q",
+  "version": "1.0.0",
+  "description": "No waiting, only smart waiting",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "http-status-codes": "^1.4.0",
+    "mongoose": "^5.9.9",
+    "object-mapper": "^6.2.0",
+    "cors": "^2.8.5",
+    "faker": "^4.1.0",
+    "compression": "^1.7.4",
+    "firebase-admin": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.3",
+    "chai": "^4.2.0",
+    "eslint": "^7.6.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^6.11.0",
+    "express-swagger-generator": "^1.1.17",
+    "mocha": "^8.1.1",
+    "mongo-unit": "^2.0.1"
+  },
+  "scripts": {
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Prakash-Selvaraj-Ash/Q.git"
+  },
+  "author": "prakash",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Prakash-Selvaraj-Ash/Q/issues"
+  },
+  "homepage": "https://github.com/Prakash-Selvaraj-Ash/Q#readme"
+}
