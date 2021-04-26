@@ -5,7 +5,7 @@ const ProviderSchema = new mongoose.Schema({
     type: { type: String, required: true },
     subType: { type: String },
     commentsCount: { type: Number, default: 0 },
-    review: { type: Number, default: 0 },
+    review: { type: Number, default: 0.0 },
     location: { type: [Number], required: true },
     userId: { type: String, required: true },
     imageUrl: { type: String },

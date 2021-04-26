@@ -17,9 +17,18 @@ const reviewService = {
         await reviewEntitySchema.create(review);
 
         const totalReview = await totalReviewSchema.findOne({ providerId: reviewRequest.providerId });
-
+        if (!totalReview) {
+            const totalRating = {
+                providerId: reviewRequest.providerId,
+                rating: reviewRequest.rating,
+                userId: reviewRequest.userId,
+                noOfRated: 1
+            };
+            await totalReviewSchema.create(totalRating);
+            return;
+        }
         totalReview.noOfRated += 1;
-        totalReview.rating = (totalUserRating.rating + reviewRequest.rating) / totalUserRating.noOfRated;
+        totalReview.rating = (totalReview.rating + reviewRequest.rating) / totalReview.noOfRated;
 
         await totalReviewSchema.updateOne(totalReview);
     },

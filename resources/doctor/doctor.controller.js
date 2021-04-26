@@ -52,7 +52,7 @@ const doctorController = {
                     subType: faker.random.arrayElement(['DGO', 'Surgeon', 'Cardiac', 'Ortho', 'Onco']),
                     location: [faker.address.latitude(), faker.address.longitude()],
                     userId: req.user.uid,
-                    imageUrl: faker.image.imageUrl(),
+                    imageUrl: 'https://picsum.photos/640/480',
                     availTime: [12, 14],
                     providerId: faker.random.arrayElement(providerIds),
                 }

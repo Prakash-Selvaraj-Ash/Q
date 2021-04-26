@@ -6,7 +6,7 @@ exports.validate = async function(commentRequest) {
     commentRequest.providerId,
     commentRequest.parentId
   );
-  const providerValidation = validateprovider(commentRequest.providerId);
+  const providerValidation = validateProvider(commentRequest.providerId);
   return await Promise.all([parentValidation, providerValidation]);
 };
 
@@ -22,6 +22,7 @@ validateIsParent = async function(providerId, parentId) {
 };
 
 validateProvider = async function(providerId) {
+  console.log(providerId);
   if (!providerId) {
     return Promise.reject(new Error("providerId is mandatory to create a comment"));
   }

@@ -19,7 +19,7 @@ const tokenService = {
             { $sort: { tokenNumber: -1 } },
             { $limit: 1 }]);
 
-        var tokenNumber = 0;
+        let tokenNumber = 0;
         if (!userToken || userToken.length == 0) { tokenNumber = 1 }
         else { tokenNumber = userToken[0].tokenNumber + 1; }
 
@@ -39,8 +39,8 @@ const tokenService = {
 
         if (archivedToken.providerId.toString() != provider._id.toString()) { throw new Error('provider mismatch'); }
 
-        let timeServed = Date.now() - (archivedToken.startedOn.getTime());
-        let timeServedInMin = timeServed / 1000 / 60
+        const timeServed = Date.now() - (archivedToken.startedOn.getTime());
+        const timeServedInMin = timeServed / 1000 / 60
 
         archivedToken.timeServed = timeServedInMin;
         await archivedToken.save();

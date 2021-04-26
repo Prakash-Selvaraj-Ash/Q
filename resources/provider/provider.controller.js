@@ -25,6 +25,10 @@ const providerController = {
         }
     },
 
+    getProviderById: async (req, res) => {
+        return await util.processAndReturn(providerService.getProviderById(req.params.id), res);
+    },
+
     searchProviders: async (req, res) => {
         try {
             const providers = await providerService.searchProviders(req.query.key, req.query.start, req.query.limit);
@@ -60,7 +64,7 @@ const providerController = {
                         type: faker.random.arrayElement(['Hospital', 'Restuarant', 'Salon']),
                         location: [faker.address.latitude(), faker.address.longitude()],
                         userId: req.user.uid,
-                        imageUrl: faker.image.imageUrl(),
+                        imageUrl: 'https://picsum.photos/640/480',
                         availTime: [12, 14]
                     }
 

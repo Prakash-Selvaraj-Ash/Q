@@ -16,12 +16,24 @@ const providerService = {
     },
 
     getAllProviders: async function (req) {
-        const providers = await providerSchema.find();
-        return providers;
+        const providers = await providerSchema.aggregate([
+            {
+                $lookup: {
+                    from: 'totalproviderratings',
+                    localField: '_id',
+                    foreignField: 'providerId',
+                    as: 'rating',
+                }
+            },
+            { $unwind: { path: '$rating', "preserveNullAndEmptyArrays": true } },
+
+        ]);
+        return mapper(providers, providerProfile.providerList);
     },
 
 
     getProviderById: async function (providerId) {
+        console.log('providerId', providerId);
         const result = await providerSchema.aggregate([
             {
                 $lookup: {
@@ -31,12 +43,26 @@ const providerService = {
                     as: 'comments',
                 },
             },
+            {
+                $lookup: {
+                    from: 'totalproviderratings',
+                    localField: '_id',
+                    foreignField: 'providerId',
+                    as: 'rating',
+                }
+            },
+            { $unwind: { path: '$rating', "preserveNullAndEmptyArrays": true } },
+            { $unwind: { path: '$comments', "preserveNullAndEmptyArrays": true } },
             { $match: { _id: new mongoose.Types.ObjectId(providerId) } },
         ]);
-        return mapper(result, providerProfile.providerByIdMap);
+        console.log('result', result);
+        const final = mapper(result, providerProfile.providerByIdMap);
+        console.log('final', final);
+        return final;
     },
 
     searchProviders: async (searchParam, start, limit) => {
+        console.log('searchParam', searchParam);
         const providers = providerSchema.find(
             {
                 $or: [
@@ -44,9 +70,10 @@ const providerService = {
                     { 'name': { '$regex': searchParam, '$options': 'i' } }
                 ]
             }
-        )
+        );
 
-        return await util.paginate(providers, start, limit);
+        const pagedProviders = await util.paginate(providers, start, limit);
+        return mapper(pagedProviders, providerProfile.providerList);
     },
 
     getProviderByIds: async function (providerIds) {
@@ -64,19 +91,11 @@ const providerService = {
 getProvidersWithUserInfo = async function (matchPipeLine, start, limit) {
     const providers = providerSchema
         .aggregate([
-            // {
-            //     // $lookup: {
-            //     //     from: 'users',
-            //     //     localField: 'userId',
-            //     //     foreignField: 'uid',
-            //     //     as: 'provideredBy',
-            //     // },
-            // },
+
             matchPipeLine,
-            //{ $unwind: '$provideredBy' },
+
         ]);
 
-    //const providers = providerSchema.find();
     const res = await util.paginate(providers, start, limit);
     return res;
 };
