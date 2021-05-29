@@ -52,7 +52,7 @@ const providerService = {
                 }
             },
             { $unwind: { path: '$rating', "preserveNullAndEmptyArrays": true } },
-            { $unwind: { path: '$comments', "preserveNullAndEmptyArrays": true } },
+            
             { $match: { _id: new mongoose.Types.ObjectId(providerId) } },
         ]);
         console.log('result', result);

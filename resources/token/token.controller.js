@@ -53,8 +53,16 @@ const tokenController = {
         }
     },
 
+    getTokenWaitingTime: async(req, res) => {
+        return await util.processAndReturn(tokenService.getTokenWaitingTime(req.query.providerId), res);
+    },
+
     getAvailability: async (req, res) => {
         return await util.processAndReturn(tokenService.getAvailability(req.query.providerId), res);
+    },
+
+    getUserTokens: async(req, res) => {
+        return await util.processAndReturn(tokenService.getUserTokens(req.user.uid), res);
     }
 }
 

@@ -44,11 +44,13 @@ const tokenService = {
 
         archivedToken.timeServed = timeServedInMin;
         await archivedToken.save();
+        const token = await tokenSchema.findOne({ providerId: archivedToken.providerId });
 
-        await tokenSchema.findOneAndUpdate(
-            { providerId: archivedToken.providerId },
-            { $set: { lastWaitingTime: timeServedInMin } });
+        const avgTime = token.lastWaitingTime + timeServedInMin / token.tokenNumber;
+        token.lastWaitingTime = timeServedInMin;
+        token.avgWaitingTime = avgTime;
 
+        await token.save();
         await userTokenSchema.deleteOne({ _id: tokenId });
     },
 
@@ -83,9 +85,21 @@ const tokenService = {
         await token.save();
     },
 
-    getCurrentToken: async (providerId) => {
-        const token = await tokenSchema.findOne({ providerId: providerId });
-        return mapper(token, tokenProfile.getCurrent);
+    getCurrentToken: async (tokenId) => {
+        const result = await userTokenSchema.aggregate([
+            {
+                $lookup: {
+                    from: 'token',
+                    localField: 'providerId',
+                    foreignField: 'providerId',
+                    as: 'token',
+                },
+            },
+            { $unwind: { path: '$token', "preserveNullAndEmptyArrays": true } },
+            { $match: { _id: new mongoose.Types.ObjectId(tokenId) } },
+        ]);
+        console.log(result);
+        return mapper(result, tokenProfile.getCurrent);
     },
 
     getTokensForProvider: async (provider) => {
@@ -93,18 +107,65 @@ const tokenService = {
         return mapper(tokens, tokenProfile.getTokensForProvider);
     },
 
+    getTokenWaitingTime: async (providerId) => {
+        const result = await tokenSchema.findOne({ providerId: providerId });
+        console.log('waiting time', result);
+        return result;
+    },
+
     getAvailability: async (providerId) => {
+
         const userToken = await userTokenSchema.aggregate([
             { $match: { providerId: new mongoose.Types.ObjectId(providerId) } },
             { $sort: { tokenNumber: -1 } },
             { $limit: 1 }]);
 
         let tokenNumber = 0;
+        console.log('providerId', providerId);
         if (!userToken || userToken.length == 0) { tokenNumber = 1 }
 
         const provider = await providerSchema.findOne({ _id: providerId });
-
+        console.log('provider', provider);
         return provider.maxToken > tokenNumber;
+    },
+
+    getUserTokens: async (userId) => {
+        const result = await userTokenSchema.aggregate([
+            {
+                '$lookup': {
+                    'from': 'providers',
+                    'localField': 'providerId',
+                    'foreignField': '_id',
+                    'as': 'provider'
+                }
+            }, {
+                '$lookup': {
+                    'from': 'tokens',
+                    'localField': 'providerId',
+                    'foreignField': 'providerId',
+                    'as': 'currentToken'
+                }
+            }, {
+                '$unwind': {
+                    'path': '$providers',
+                    'preserveNullAndEmptyArrays': true
+                }
+            }, {
+                '$unwind': {
+                    'path': '$currentToken',
+                    'preserveNullAndEmptyArrays': true
+                }
+            },
+            {
+                '$match': {
+                    'userId': userId
+                }
+            }
+        ]);
+        // return result;
+        // const tokens = await userTokenSchema.find({ userId: userId });
+        // return mapper(tokens, tokenProfile.getTokensForProvider);
+        return mapper(result, tokenProfile.getUserTokens);
     }
 }
 
